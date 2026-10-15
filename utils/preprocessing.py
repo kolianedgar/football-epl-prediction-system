@@ -35,3 +35,12 @@ def check_missing_values(df, column):
         raise ValueError(f"Column {column} not found")
 
     return df[column].isna().sum()
+
+def sort_chronologically(df, date_column):
+    if date_column not in df.columns:
+        raise ValueError(f"Column {date_column} not found")
+
+    df.sort_values(by=[date_column], inplace=True)
+    df.reset_index(drop=True, inplace=True)
+
+    return df

@@ -29,7 +29,7 @@ def report_clean_dataset(
             raise ValueError(f"Column {col} not found in the dataframe!")
 
         if col is None:
-            raise ValueError(f"Column {col} is invalid!")
+            raise ValueError(f"Column {col} is None!")
 
     earliest_date = df[date_column].min()
     latest_date = df[date_column].max()
@@ -67,8 +67,8 @@ def report_clean_dataset(
         "Number of unique divisions": unique_divisions_count,
         "Number of missing values": missing_values_count,
         "Unique target values": unique_target_values,
-        "Only_home goals invalid": home_team_invalid_count,
-        "Only_away_goals_invalid": away_team_invalid_count,
-        "Both_invalid": both_invalid_count,
+        "Only home goals invalid": home_team_invalid_count,
+        "Only away goals invalid": away_team_invalid_count,
+        "Both invalid": both_invalid_count,
         "Identical home and away": identical_home_and_away
     }

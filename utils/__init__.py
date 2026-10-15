@@ -4,9 +4,12 @@ from .preprocessing import (
     drop_features_until_certain_one,
     parse_date,
     check_missing_values,
-    remove_columns
+    remove_columns,
+    sort_chronologically,
 )
 from .reporting import report_clean_dataset
+from .elo import add_elo_columns_to_dataframe
+from .split_data import split_data_features_targets, split_df_train_test
 
 __all__ = [
     "load_data",
@@ -15,5 +18,9 @@ __all__ = [
     "parse_date",
     "check_missing_values",
     "remove_columns",
-    "report_clean_dataset"
+    "report_clean_dataset",
+    "sort_chronologically",
+    "add_elo_columns_to_dataframe",
+    "split_data_features_targets",
+    "split_df_train_test"
 ]
