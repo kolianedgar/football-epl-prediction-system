@@ -14,14 +14,13 @@ from utils import (
     split_df_train_test
 )
 
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
 from catboost import CatBoostClassifier
 from sklearn.metrics import classification_report
 
 import os
 
 path = os.getcwd() + "\\data"
-
 
 df = load_data(path)
 
@@ -85,16 +84,26 @@ print(X_train.columns.tolist())
 
 print('='*60)
 
+tscv = TimeSeriesSplit (
+    n_splits = 5
+)
+
 model = CatBoostClassifier(
-    logging_level='Silent'
+    # logging_level='Silent',
+    eval_metric="TotalF1",
+    random_seed=42,
+    verbose=0,
+    allow_writing_files=False,
+    thread_count=-1,
+    loss_function="MultiClass"
 )
 
 parameter_grid = {
-    "iterations": [100, 200],
-    "learning_rate": [0.01, 0.1],
-    "depth": [4, 6, 8],
-    "l2_leaf_reg": [1, 3, 5],
-    "border_count": [32, 64, 128],
+    "depth": [4, 5, 6, 7, 8, 9],
+    "iterations": [300, 600, 1000],
+    "learning_rate": [0.01, 0.03, 0.05, 0.1],
+    "l2_leaf_reg": [3, 5, 7, 9, 12],
+    "border_count": [64, 128]
 }
 
 grid_search = GridSearchCV(
@@ -102,7 +111,9 @@ grid_search = GridSearchCV(
     param_grid = parameter_grid,
     cv = 3,
     verbose = 2,
-    n_jobs = -1
+    n_jobs = -1,
+    refit = True,
+    scoring = "f1_macro"
 )
 
 curr_time = time.time()
@@ -118,6 +129,17 @@ y_pred = final_model.predict(X_test)
 
 print('=' * 60)
 print(f"Best Parameters: {grid_search.best_params_}")
+
+# 
+# Best Parameters: {
+    # 'border_count': 64,
+    # 'depth': 6,
+    # 'iterations': 300,
+    # 'l2_leaf_reg': 7,
+    # 'learning_rate': 0.05
+#}
+#
+print(f"Best CV macro-f1: {grid_search.best_score_}")
 print('=' * 60)
 
 print("Training Classification Report:")
