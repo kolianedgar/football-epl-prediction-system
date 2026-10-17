@@ -3,7 +3,7 @@ import time
 from utils import (
     load_data,
     remove_invalid_rows,
-    drop_features_until_certain_one,
+    keep_features_until_certain_one,
     parse_date,
     check_missing_values,
     remove_columns,
@@ -27,7 +27,7 @@ df = load_data(path)
 
 df = remove_invalid_rows(df, "Div")
 df = remove_columns(df, ["HxG", "AxG", "Time"])
-df = drop_features_until_certain_one(df, "B365H")
+df = keep_features_until_certain_one(df, "B365H")
 df = parse_date(df, date_column_name="Date", format='mixed', day_first=True)
 
 print('=' * 60)
