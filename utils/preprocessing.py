@@ -6,7 +6,7 @@ def remove_invalid_rows(df, column_of_reference):
 
     return df[df[column_of_reference].notna()]
 
-def drop_features_until_certain_one(df, column_name):
+def keep_features_until_certain_one(df, column_name):
     if column_name not in df.columns:
         raise ValueError(f"Column {column_name} not found")
 

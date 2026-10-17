@@ -1,3 +1,5 @@
+import time
+
 from utils import (
     load_data,
     remove_invalid_rows,
@@ -12,6 +14,10 @@ from utils import (
     split_df_train_test
 )
 
+from sklearn.model_selection import GridSearchCV
+from catboost import CatBoostClassifier
+from sklearn.metrics import classification_report
+
 import os
 
 path = os.getcwd() + "\\data"
@@ -20,7 +26,7 @@ path = os.getcwd() + "\\data"
 df = load_data(path)
 
 df = remove_invalid_rows(df, "Div")
-df = remove_columns(df, ["HxG", "AxG", "Time", "HTR"])
+df = remove_columns(df, ["HxG", "AxG", "Time"])
 df = drop_features_until_certain_one(df, "B365H")
 df = parse_date(df, date_column_name="Date", format='mixed', day_first=True)
 
@@ -58,15 +64,10 @@ df_elo = add_elo_columns_to_dataframe(
     ftr="FTR"
 )
 
-# print('='*60)
-# print("Last rows of the new dataframe with ELO")
-# print('='*60)
-# print(df_elo_test.tail())
-
 X, y = split_data_features_targets(
     df_elo,
     date_column="Date",
-    columns_to_drop=["FTHG", "FTAG", "Date"],
+    columns_to_drop=["Div", "FTHG", "FTAG", "Date"],
     target_column="FTR"
 )
 
@@ -79,5 +80,49 @@ X_train, X_test, y_train, y_test = split_df_train_test(
 print('='*60)
 print(X_train.shape, y_train.shape)
 print(X_test.shape, y_test.shape)
+print('='*60)
+print(X_train.columns.tolist())
 
-print(X.columns.tolist())
+print('='*60)
+
+model = CatBoostClassifier(
+    logging_level='Silent'
+)
+
+parameter_grid = {
+    "iterations": [100, 200],
+    "learning_rate": [0.01, 0.1],
+    "depth": [4, 6, 8],
+    "l2_leaf_reg": [1, 3, 5],
+    "border_count": [32, 64, 128],
+}
+
+grid_search = GridSearchCV(
+    estimator = model,
+    param_grid = parameter_grid,
+    cv = 3,
+    verbose = 2,
+    n_jobs = -1
+)
+
+curr_time = time.time()
+grid_search.fit(X_train, y_train, cat_features = ["HomeTeam", "AwayTeam", "HTR", "Referee"])
+end = time.time()
+
+print(f"Time taken for hyperparameter tuning: {end - curr_time}")
+
+final_model = grid_search.best_estimator_
+
+y_train_pred = final_model.predict(X_train)
+y_pred = final_model.predict(X_test)
+
+print('=' * 60)
+print(f"Best Parameters: {grid_search.best_params_}")
+print('=' * 60)
+
+print("Training Classification Report:")
+print(classification_report(y_train, y_train_pred))
+print('=' * 60)
+
+print("Testing Classification Report:")
+print(classification_report(y_test, y_pred))
