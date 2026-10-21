@@ -124,8 +124,9 @@ print(f"Time taken for hyperparameter tuning: {end - curr_time}")
 
 final_model = grid_search.best_estimator_
 
-y_train_pred = final_model.predict(X_train)
-y_pred = final_model.predict(X_test)
+model.fit(X_train, y_train, cat_features=["HomeTeam", "AwayTeam", "HTR", "Referee"])
+y_train_pred = model.predict(X_train)
+y_pred = model.predict(X_test)
 
 print('=' * 60)
 print(f"Best Parameters: {grid_search.best_params_}")
