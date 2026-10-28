@@ -1,5 +1,3 @@
-import time
-
 from utils import (
     load_data,
     remove_invalid_rows,
@@ -12,15 +10,10 @@ from utils import (
     add_elo_columns_to_dataframe,
     split_data_features_targets,
     split_df_train_test,
-    slugify,
-    create_api_urls,
-    determine_result_of_ht
 )
 
 from scripts import (
-    return_entries,
     return_home_away_teams,
-    convert_data_to_json
 )
 
 import os
