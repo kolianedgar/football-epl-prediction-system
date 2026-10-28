@@ -11,14 +11,20 @@ from utils import (
     sort_chronologically,
     add_elo_columns_to_dataframe,
     split_data_features_targets,
-    split_df_train_test
+    split_df_train_test,
+    slugify,
+    create_api_urls,
+    determine_result_of_ht
 )
 
-from sklearn.model_selection import GridSearchCV
-from catboost import CatBoostClassifier
-from sklearn.metrics import classification_report
+from scripts import (
+    return_entries,
+    return_home_away_teams,
+    convert_data_to_json
+)
 
 import os
+import json
 
 path = os.getcwd() + "\\data"
 
@@ -85,44 +91,60 @@ print(X_train.columns.tolist())
 
 print('='*60)
 
-model = CatBoostClassifier(
-    logging_level='Silent'
-)
-
-parameter_grid = {
-    "iterations": [100, 200],
-    "learning_rate": [0.01, 0.1],
-    "depth": [4, 6, 8],
-    "l2_leaf_reg": [1, 3, 5],
-    "border_count": [32, 64, 128],
+header = {
+    "User-Agent": "Mozilla/5.0"
 }
 
-grid_search = GridSearchCV(
-    estimator = model,
-    param_grid = parameter_grid,
-    cv = 3,
-    verbose = 2,
-    n_jobs = -1
+api_urls_momentum = []
+api_urls_stats = []
+
+home_away_dict_match_id = {}
+match_ids_raw = []
+
+number_of_matchweeks = 38
+
+url_base_matchweek = "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v2/matches?competition=8&season=2026&matchweek=1&_limit=20"
+url_base_momentum = "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v1/matches/2645272/momentum"
+url_base_stats = "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v3/matches/2645272/stats"
+
+# convert_data_to_json(
+#     header = header,
+#     url_base=url_base_matchweek,
+#     mode = "matchweek"
+# )
+
+with open('home_away_id.json') as file:
+    home_away_dict_match_id = json.load(file)
+
+with open('ids_raw.json') as file:
+    match_ids_raw = json.load(file)
+
+results_home_away = return_home_away_teams(
+    home_away_dict_match_id=home_away_dict_match_id
 )
 
-curr_time = time.time()
-grid_search.fit(X_train, y_train, cat_features = ["HomeTeam", "AwayTeam", "HTR", "Referee"])
-end = time.time()
+home_teams = results_home_away['home_teams_full']
+away_teams = results_home_away['away_teams_full']
 
-print(f"Time taken for hyperparameter tuning: {end - curr_time}")
+print(f"First 5 home teams: {home_teams[:5]}")
+print(f"First 5 away teams: {away_teams[:5]}")
 
-final_model = grid_search.best_estimator_
+# convert_data_to_json(
+#     header = header,
+#     url_base = url_base_momentum,
+#     match_ids = match_ids_raw,
+#     mode = "momentum"
+# )
 
-y_train_pred = final_model.predict(X_train)
-y_pred = final_model.predict(X_test)
+# convert_data_to_json(
+#     header = header,
+#     url_base = url_base_stats,
+#     match_ids = match_ids_raw,
+#     mode = "stats"
+# )
 
-print('=' * 60)
-print(f"Best Parameters: {grid_search.best_params_}")
-print('=' * 60)
+with open('momentum.json') as file:
+    momentum_entries = json.load(file)
 
-print("Training Classification Report:")
-print(classification_report(y_train, y_train_pred))
-print('=' * 60)
-
-print("Testing Classification Report:")
-print(classification_report(y_test, y_pred))
+with open('stats.json') as file:
+    stats_entries = json.load(file)

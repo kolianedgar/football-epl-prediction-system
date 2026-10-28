@@ -10,6 +10,11 @@ from .preprocessing import (
 from .reporting import report_clean_dataset
 from .elo import add_elo_columns_to_dataframe
 from .split_data import split_data_features_targets, split_df_train_test
+from .data_utils import (
+    slugify,
+    determine_result_of_ht,
+    create_api_urls
+)
 
 __all__ = [
     "load_data",
@@ -22,5 +27,8 @@ __all__ = [
     "sort_chronologically",
     "add_elo_columns_to_dataframe",
     "split_data_features_targets",
-    "split_df_train_test"
+    "split_df_train_test",
+    "slugify",
+    "determine_result_of_ht",
+    "create_api_urls"
 ]
