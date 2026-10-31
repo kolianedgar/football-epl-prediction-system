@@ -1,4 +1,9 @@
-def split_data_features_targets(df, date_column, columns_to_drop, target_column):
+def split_data_features_targets(
+    df,
+    date_column,
+    columns_to_drop,
+    target_column
+):
 
     df = df.copy()
 
@@ -24,7 +29,11 @@ def split_data_features_targets(df, date_column, columns_to_drop, target_column)
 
     return X_chronological, y_chronological
 
-def split_df_train_test(X, y, split_proportion):
+def split_df_train_test(
+    X,
+    y,
+    split_proportion
+):
     split_idx = int(len(X) * split_proportion)
 
     X_train = X.iloc[:split_idx].copy()
