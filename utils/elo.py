@@ -115,10 +115,21 @@ def _calculate_home_score(ftr):
     elif ftr == 'A':
         return 0
 
-def _calculate_expected_home_score(elo_home, elo_away, home_advantage):
+def _calculate_expected_home_score(
+    elo_home,
+    elo_away,
+    home_advantage
+):
     return 1/(1 + (10**(-(elo_home + home_advantage - elo_away)/400)))
 
-def _calculate_elo_after_match(mode, home_elo_before, away_elo_before, k, score_home, score_expected_home):
+def _calculate_elo_after_match(
+    mode,
+    home_elo_before,
+    away_elo_before,
+    k,
+    score_home,
+    score_expected_home
+):
 
     if mode not in ["Home", "Away", 'H', 'A']:
         raise ValueError(f"Mode {mode} is invalid")
