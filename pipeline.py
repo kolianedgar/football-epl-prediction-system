@@ -18,7 +18,11 @@ from scripts import (
     return_home_away_teams,
     return_momentum_info,
     return_stats_info,
-    convert_data_to_json
+
+    convert_home_away_id_to_json,
+    convert_raw_ids_to_json,
+    convert_momentum_to_json,
+    convert_stats_to_json
 )
 
 import os
@@ -61,15 +65,6 @@ for key, value in report.items():
 
 df = sort_chronologically(df, "Date")
 
-df_elo = add_elo_columns_to_dataframe(
-    df,
-    home_team_col="HomeTeam",
-    away_team_col="AwayTeam",
-    fthg="FTHG",
-    ftag="FTAG",
-    ftr="FTR"
-)
-
 # print(df_elo.head())
 
 print('=' * 60)
@@ -83,16 +78,38 @@ url_base_matchweek = "https://sdp-prem-prod.premier-league-prod.pulselive.com/ap
 url_base_momentum = "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v1/matches/2645272/momentum"
 url_base_stats = "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v3/matches/2645272/stats"
 
-# convert_data_to_json(
-#     url_base=url_base_matchweek,
-#     mode = "matchweek"
-# )
+path_momentum = os.getcwd() + "\\data\\momentum.json"
+path_stats = os.getcwd() + "\\data\\stats.json"
+path_home_away_id = os.getcwd() + "\\data\\home_away_id.json"
+path_ids_raw = os.getcwd() + "\\data\\ids_raw.json"
 
-with open('home_away_id.json') as file:
+convert_home_away_id_to_json(
+    url_base = url_base_matchweek,
+    path = path_home_away_id
+)
+
+convert_raw_ids_to_json(
+    url_base = url_base_matchweek,
+    path = path_ids_raw
+)
+
+with open(path_home_away_id) as file:
     home_away_dict_match_id = json.load(file)
 
-with open('ids_raw.json') as file:
+with open(path_ids_raw) as file:
     match_ids_raw = json.load(file)
+
+convert_momentum_to_json(
+    url_base = url_base_momentum,
+    match_ids = match_ids_raw,
+    path = path_momentum
+)
+
+convert_stats_to_json(
+    url_base = url_base_stats,
+    match_ids = match_ids_raw,
+    path = path_stats
+)
 
 results_home_away = return_home_away_teams(
     home_away_dict_match_id=home_away_dict_match_id
@@ -106,22 +123,10 @@ print(f"First 5 away teams: {away_teams[:5]}")
 
 print('=' * 60)
 
-# convert_data_to_json(
-#     url_base = url_base_momentum,
-#     match_ids = match_ids_raw,
-#     mode = "momentum"
-# )
-
-# convert_data_to_json(
-#     url_base = url_base_stats,
-#     match_ids = match_ids_raw,
-#     mode = "stats"
-# )
-
-with open('momentum.json') as file:
+with open(path_momentum) as file:
     momentum_entries = json.load(file)
 
-with open('stats.json') as file:
+with open(path_stats) as file:
     stats_entries = json.load(file)
 
 results_momentum = return_momentum_info(
@@ -228,8 +233,7 @@ df_new_data = parse_date(
 
 df_new_data = sort_chronologically(df_new_data, "Date")
 
-df_new_full_w_duplicates = pd.concat([df, df_new_data])
-df_new_full = df_new_full_w_duplicates.drop_duplicates()
+df_new_full = pd.concat([df, df_new_data]).drop_duplicates()
 
 print(df_new_data["Date"].max())
 
