@@ -17,6 +17,16 @@ def determine_result_of_ht(row):
     elif row['HTHG'] == row['HTAG']:
         return 'D'
 
+def determine_result_of_ft(row):
+    if row['FTHG'] > row['FTAG']:
+            return 'H'
+    elif row['FTHG'] < row['FTAG']:
+        return 'A'
+    elif row['FTHG'] == np.nan and row['FTAG'] == np.nan:
+        return pd.NA
+    elif row['FTHG'] == row['FTAG']:
+        return 'D'
+    
 def _change_matchweek(url, matchweek):
     pattern = r"(matchweek=)\d+"
     return re.sub(pattern, rf"\g<1>{matchweek}", url)

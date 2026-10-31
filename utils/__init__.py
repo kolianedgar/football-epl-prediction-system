@@ -13,7 +13,8 @@ from .split_data import split_data_features_targets, split_df_train_test
 from .data_utils import (
     slugify,
     determine_result_of_ht,
-    create_api_urls
+    create_api_urls,
+    determine_result_of_ft
 )
 
 __all__ = [
@@ -30,5 +31,6 @@ __all__ = [
     "split_df_train_test",
     "slugify",
     "determine_result_of_ht",
-    "create_api_urls"
+    "create_api_urls",
+    "determine_result_of_ft"
 ]

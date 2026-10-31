@@ -4,85 +4,75 @@ import json
 import requests
 
 def convert_data_to_json(
-    header = None,
     url_base = None,
     match_ids = [],
     mode = "matchweek"
 ):
 
-    if header is None:
-        raise ValueError("Requests header is invalid")
-    
     if mode not in ['matchweek', 'momentum', 'stats']:
         raise ValueError(f"Mode {mode} is invalid")
 
     if mode == "matchweek":
-        home_away_dict_match_id = {}
-        match_ids_raw = []
+
+        header = {
+            "User-Agent": "Mozilla/5.0"
+        }
 
         api_urls_matchweek = create_api_urls(
             url_base,
             mode = "matchweek"
         )
 
-        for api_url in api_urls_matchweek:
-            response = requests.get(
-                api_url,
-                headers=header,
-                timeout=20
-            )
-
-            response.raise_for_status()
-            data = response.json()
-
-            for match in data['data']:
-                home_away_dict = {}
-
-                match_id = match['matchId']
-                home = slugify(match["homeTeam"]["name"])
-                away = slugify(match["awayTeam"]["name"])
-            
-                home_away_dict[home] = away
-
-                home_away_dict_match_id[match_id] = home_away_dict
-                match_ids_raw.append(match_id)
+        results_matchweek = return_entries(
+            header = header,
+            api_urls_matchweek = api_urls_matchweek,
+            mode = "matchweek"
+        )
         
-        with open('home_away_id.json', 'w') as fp:
-            json.dump(home_away_dict_match_id, fp)
+        with open('home_away_id.json', 'w', encoding="utf-8") as fp:
+            json.dump(results_matchweek["home_away_dict_match_id"], fp, indent=4)
 
-        with open('ids_raw.json', 'w') as fp:
-            json.dump(match_ids_raw, fp)
+        with open('ids_raw.json', 'w', encoding="utf-8") as fp:
+            json.dump(results_matchweek["match_ids_raw"], fp, indent=4)
             
         
     elif mode == "momentum":
+        header = {
+            "User-Agent": "Mozilla/5.0"
+        }
+
         api_urls_momentum = create_api_urls(
             url_base,
             match_ids = match_ids,
-            mode = mode
+            mode = "momentum"
         )
 
         momentum_entries = return_entries(
             header = header,
             api_urls_momentum = api_urls_momentum,
-            mode = mode
+            mode = "momentum"
         )
 
-        with open('momentum.json', 'w') as fp:
-            json.dump(momentum_entries, fp)
+        with open('momentum.json', 'w', encoding="utf-8") as fp:
+            json.dump(momentum_entries, fp, indent=4)
 
     elif mode == "stats":
+        header = {
+            "User-Agent": "Mozilla/5.0"
+        }
+
         api_urls_stats = create_api_urls(
             url_base,
             match_ids = match_ids,
-            mode = mode
+            mode = "stats"
         )
 
         stats_entries = return_entries(
             header = header,
             api_urls_stats = api_urls_stats,
-            mode = mode
+            mode = "stats"
         )
 
-        with open('stats.json', 'w') as fp:
-            json.dump(stats_entries, fp)
+        with open('stats.json', 'w', encoding="utf-8") as fp:
+            json.dump(stats_entries, fp, indent=4)
     
