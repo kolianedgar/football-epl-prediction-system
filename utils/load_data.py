@@ -1,5 +1,7 @@
 import glob
 import pandas as pd
+import os
+import json
 
 def load_data(path):
     files = glob.glob(path + "\\*.csv")
@@ -26,3 +28,26 @@ def load_data(path):
     else:
         print("No files were successfully read.")
         return None
+
+def load_all_data(
+    path
+):
+    if not os.path.exists(path):
+        raise ValueError(f"{path} does not exist")
+
+    df = pd.read_csv(
+        path,
+        encoding = 'utf-8'
+    )
+
+    return df
+
+def load_json(
+    path
+):
+
+    if not os.path.exists(path):
+        raise ValueError(f"{path} does not exist")
+
+    with open(path, "r", encoding='utf-8') as file:
+        return json.load(file)

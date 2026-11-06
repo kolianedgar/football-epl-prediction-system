@@ -78,10 +78,10 @@ url_base_matchweek = "https://sdp-prem-prod.premier-league-prod.pulselive.com/ap
 url_base_momentum = "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v1/matches/2645272/momentum"
 url_base_stats = "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v3/matches/2645272/stats"
 
-path_momentum = os.getcwd() + "\\data\\test\\momentum.json"
-path_stats = os.getcwd() + "\\data\\test\\stats.json"
-path_home_away_id = os.getcwd() + "\\data\\test\\home_away_id.json"
-path_ids_raw = os.getcwd() + "\\data\\test\\ids_raw.json"
+path_momentum = os.getcwd() + "\\data\\momentum.json"
+path_stats = os.getcwd() + "\\data\\stats.json"
+path_home_away_id = os.getcwd() + "\\data\\home_away_id.json"
+path_ids_raw = os.getcwd() + "\\data\\ids_raw.json"
 
 convert_home_away_id_to_json(
     url_base = url_base_matchweek,
@@ -247,6 +247,8 @@ df_new_elo = add_elo_columns_to_dataframe(
 )
 
 df_new_elo = df_new_elo.drop(columns=["Div"])
+
+df_new_elo.to_csv(os.getcwd() + "\\data\\all_matches.csv", index=False)
 
 X_new_elo, y_new_elo = split_data_features_targets(
     df_new_elo,
