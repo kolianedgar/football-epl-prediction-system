@@ -1,9 +1,9 @@
 import os
 import tempfile
 import json
-from datetime import date
+from datetime import datetime
 import shutil
-import sys
+from pathlib import Path
 
 def save_json(
     path,
@@ -26,80 +26,40 @@ def save_json(
 
     os.replace(temp_path, path)
 
-def create_backup_folder(
-    dst_dir,
-    date_of_backup
-):
-    if not os.path.exists(dst_dir):
+def create_backup_folder(dst_dir):
+    dst_dir = Path(dst_dir)
+
+    if not dst_dir.is_dir():
         raise FileNotFoundError(f"Directory {dst_dir} not found")
 
-    if isinstance(date_of_backup, date):
-        date_format = date_of_backup.strftime("%d_%b_%Y")
+    timestamp = datetime.now().strftime("%d_%b_%Y_%H%M%S")
+    backup_path = dst_dir / timestamp
 
-        backup_folder_path = str(dst_dir) + date_format
+    backup_path.mkdir(parents=True, exist_ok=False)
 
-        if os.path.exists(backup_folder_path):
-            shutil.rmtree(backup_folder_path)
-
-        os.makedirs(backup_folder_path)
-
-        return backup_folder_path + "\\"
-    
-    else:
-        raise ValueError(f"Provided date is invalid")
-
-        
+    return backup_path
 
 def backup_data(
-    date_of_backup,
-    src_dir = '',
-    src_file_name = None,
-    dst_dir = '',
+    src_dir,
+    src_file_name,
+    dst_dir,
     dst_file_name = None,
 ):
 
-    if not os.path.exists(src_dir):
-        raise FileNotFoundError(f"Directory {src_dir} not found")
-    
-    if src_file_name is None:
-        raise ValueError("Please give a source file name")
+    src_path = Path(src_dir) / src_file_name
+    dst_dir = Path(dst_dir)
 
-    if not isinstance(date_of_backup, date):
-        raise ValueError("Date is invalid")
-    
-    try:
+    if not src_path.is_file():
+        raise FileNotFoundError(f"Source file {src_path} not found")
 
-        date_format = str(date_of_backup.strftime("%d_%b_%Y_"))
+    if not dst_dir.is_dir():
+        raise FileNotFoundError(f"Destination directory {dst_dir} not found")
 
-        if dst_file_name is None:
-            dst_file_name = src_file_name
+    if dst_file_name is None:
+        dst_file_name = src_file_name
 
-        src_dir = src_dir + src_file_name
-        
-        if not os.path.exists(src_dir):
-            raise FileNotFoundError(f"Source file {src_dir} not found")
-    
-        if src_file_name and dst_file_name and src_dir and dst_dir:
-            dst_dir = dst_dir + dst_file_name
-        
-        elif dst_file_name is None or not dst_file_name:
-            dst_file_name = src_file_name
-            dst_dir = dst_dir + dst_file_name
-    
-        elif dst_file_name.isspace():
-            dst_file_name = src_file_name
-            dst_dir = dst_dir + dst_file_name
-    
-        else:
-            dst_dir = dst_dir + dst_file_name
+    dst_path = dst_dir / dst_file_name
 
-        shutil.copy2(src_dir, dst_dir)
-    
-        print("Backup successful")
+    shutil.copy2(src_path, dst_path)
 
-    except PermissionError:
-
-        dst_dir = dst_dir + date_format + dst_file_name
-
-        shutil.copytree(src_file_name, dst_dir)
-    
+    print(f"Backup successful: {dst_path}")

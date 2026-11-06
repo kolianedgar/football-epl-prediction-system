@@ -65,16 +65,12 @@ stats = load_json(
     path = path_stats
 )
 
-date_of_backup = date.today()
-
 backup_folder_path = create_backup_folder(
-    dst_dir = path_backup_dst,
-    date_of_backup = date_of_backup
+    dst_dir = path_backup_dst
 )
 
 for file_name in os.listdir(path_primary_files):
     backup_data(
-        date_of_backup = date_of_backup,
         src_dir = path_primary_files,
         src_file_name = file_name,
         dst_dir = backup_folder_path
