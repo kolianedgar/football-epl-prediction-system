@@ -74,6 +74,41 @@ def convert_raw_ids_to_json(
     finally:
         client.close()
 
+def convert_match_id_datetime_to_json(
+    url_base = None,
+    path = None
+):
+    if url_base is None:
+        raise ValueError("url_base is invalid")
+
+    if path is None:
+        raise ValueError("path is invalid")
+
+    client = APIClient()
+
+    try:
+    
+        api_urls_matchweek = create_api_urls(
+            url_base,
+            mode = "matchweek"
+        )
+
+        results_matchweek = return_entries(
+            client = client,
+            api_urls_matchweek = api_urls_matchweek,
+            mode = "matchweek"
+        )
+
+        with open(path, 'w', encoding="utf-8") as fp:
+            json.dump(
+                results_matchweek['match_id_kickoff_time'],
+                fp,
+                indent=4
+            )
+
+    finally:
+        client.close()
+    
 def convert_momentum_to_json(
     url_base = None,
     match_ids = [],

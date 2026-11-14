@@ -10,6 +10,7 @@ from .convert_data_to_json import (
     convert_raw_ids_to_json,
     convert_momentum_to_json,
     convert_stats_to_json,
+    convert_match_id_datetime_to_json
 )
 
 __all__ = [
@@ -22,4 +23,5 @@ __all__ = [
     "convert_raw_ids_to_json",
     "convert_momentum_to_json",
     "convert_stats_to_json",
+    "convert_match_id_datetime_to_json"
 ]

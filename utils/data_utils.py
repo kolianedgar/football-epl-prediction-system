@@ -8,7 +8,9 @@ def slugify(name):
     )).strip("-")
 
 def determine_result_of_ht(row):
-    if row['HTHG'] > row['HTAG']:
+    if row['HTHG'] == row['HTAG'] == -1:
+        return None
+    elif row['HTHG'] > row['HTAG']:
         return 'H'
     elif row['HTHG'] < row['HTAG']:
         return 'A'
@@ -18,8 +20,10 @@ def determine_result_of_ht(row):
         return 'D'
 
 def determine_result_of_ft(row):
-    if row['FTHG'] > row['FTAG']:
-            return 'H'
+    if row['HTHG'] == row['HTAG'] == -1:
+        return None
+    elif row['FTHG'] > row['FTAG']:
+        return 'H'
     elif row['FTHG'] < row['FTAG']:
         return 'A'
     elif row['FTHG'] == np.nan and row['FTAG'] == np.nan:

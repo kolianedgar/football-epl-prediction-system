@@ -12,6 +12,7 @@ def return_entries(
     api_urls_stats = None,
     match_ids_raw = None,
     home_away_dict_match_id = None,
+    match_id_datetime = None,
     mode = "matchweek"
 ):
 
@@ -27,6 +28,9 @@ def return_entries(
     if home_away_dict_match_id is None:
         home_away_dict_match_id = {}
 
+    if match_id_datetime is None:
+        match_id_datetime = {}
+
     if mode == "matchweek":
 
         if api_urls_matchweek is None:
@@ -41,15 +45,18 @@ def return_entries(
                 match_id = match['matchId']
                 home = slugify(match["homeTeam"]["name"])
                 away = slugify(match["awayTeam"]["name"])
-            
+                time_kickoff = match['kickoff']
+
                 home_away_dict_match_id[match_id] = {
                     home: away
                 }
+                match_id_datetime[match_id] = time_kickoff
 
                 match_ids_raw.append(match_id)
         
         return {
             'home_away_dict_match_id': home_away_dict_match_id,
+            'match_id_kickoff_time': match_id_datetime,
             'match_ids_raw': match_ids_raw
         }
 
@@ -115,12 +122,13 @@ def return_momentum_info(
     if match_momentum_entries is None:
         raise ValueError("match_momentum_entries is invalid")
 
-    dates = []
     match_officials = []
     home_team_ht_goals = []
     away_team_ht_goals = []
     home_team_ft_goals = []
     away_team_ft_goals = []
+
+    number_of_games = 380
 
     for idx, data in match_momentum_entries.items():
         match_info = data.get('matchInfo')
@@ -156,10 +164,16 @@ def return_momentum_info(
         home_team_ft_goals.append(live_data["matchDetails"]["scores"]["ft"]['home'])
         away_team_ft_goals.append(live_data["matchDetails"]["scores"]["ft"]['away'])
 
-        dates.append(match_info['localDate'])
-        
+    number_of_games_that_have_not_happened = number_of_games - len(home_team_ht_goals)
+
+    for _ in range(number_of_games_that_have_not_happened):
+        match_officials.append('')
+        home_team_ht_goals.append(-1)
+        away_team_ht_goals.append(-1)
+        home_team_ft_goals.append(-1)
+        away_team_ft_goals.append(-1)
+
     return {
-        'dates': dates,
         'match_officials': match_officials,
         'home_team_ht_goals': home_team_ht_goals,
         'away_team_ht_goals': away_team_ht_goals,
@@ -224,6 +238,23 @@ def return_stats_info(
         away_team_yellow_cards.append(data[0]['stats']['totalYelCard'])
         away_total_shots.append(data[0]['stats']['totalScoringAtt'])
         away_fouls.append(data[0]['stats']['fkFoulLost'])
+
+    number_of_games_that_have_not_happened = 380 - len(home_team_red_cards)
+
+    for _ in range(number_of_games_that_have_not_happened):
+        home_team_red_cards.append(-1)
+        home_team_yellow_cards.append(-1)
+        home_total_shots.append(-1)
+        home_shots_on_target.append(-1)
+        home_fouls.append(-1)
+        home_corners.append(-1)
+
+        away_team_red_cards.append(-1)
+        away_team_yellow_cards.append(-1)
+        away_total_shots.append(-1)
+        away_shots_on_target.append(-1)
+        away_fouls.append(-1)
+        away_corners.append(-1)
 
     return {
         'home_team_red_cards': home_team_red_cards,

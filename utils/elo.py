@@ -9,7 +9,7 @@ def add_elo_columns_to_dataframe(
     home_advantage=50
 ):
 
-    columns_to_check = [home_team_col, away_team_col, fthg, ftag, ftr]
+    columns_to_check = [home_team_col, away_team_col, fthg, ftag]
     for col in columns_to_check:
         if col is None:
             raise ValueError(f"Column {col} is None!")
@@ -28,23 +28,34 @@ def add_elo_columns_to_dataframe(
         home_team = row[home_team_col]
         away_team = row[away_team_col]
 
-        home_elo = ratings.get(home_team, initial_elo)
-        away_elo = ratings.get(away_team, initial_elo)
+        if row[ftr] == None and row[fthg] == row[ftag] == -1:
+            home_team_features.append(None)
+            away_team_features.append(None)
 
-        home_team_features.append(home_elo)
-        away_team_features.append(away_elo)
+            new_away_elo = None
+            new_home_elo = None
 
-        new_home_elo, new_away_elo = _calculate_elo(
-            ftr=row[ftr],
-            fthg=row[fthg],
-            ftag=row[ftag],
-            home_elo = home_elo,
-            away_elo=away_elo,
-            home_advantage=home_advantage
-        )
+            ratings[home_team] = new_home_elo
+            ratings[away_team] = new_away_elo
 
-        ratings[home_team] = new_home_elo
-        ratings[away_team] = new_away_elo
+        else:
+            home_elo = ratings.get(home_team, initial_elo)
+            away_elo = ratings.get(away_team, initial_elo)
+
+            home_team_features.append(home_elo)
+            away_team_features.append(away_elo)
+            
+            new_home_elo, new_away_elo = _calculate_elo(
+                ftr=row[ftr],
+                fthg=row[fthg],
+                ftag=row[ftag],
+                home_elo = home_elo,
+                away_elo=away_elo,
+                home_advantage=home_advantage
+            )            
+
+            ratings[home_team] = new_home_elo
+            ratings[away_team] = new_away_elo
 
     df["HomeElo"] = home_team_features
     df["AwayElo"] = away_team_features
@@ -65,15 +76,16 @@ def _calculate_elo(
     home_advantage
 ):
 
-    if ftr not in ['H', 'A', 'D']:
+    if ftr not in ['H', 'A', 'D'] and ftr is not None:
         raise ValueError(f"Full-time result {ftr} is invalid")
-
+    
     goal_difference = abs(fthg - ftag)
     gd_multiplier = _calculate_goal_difference_multiplier(goal_difference)
 
     k_efficient = 30 * gd_multiplier
 
     home_score = _calculate_home_score(ftr)
+    
     home_expected_score = _calculate_expected_home_score(home_elo, away_elo, home_advantage)
     
     post_match_home_elo = _calculate_elo_after_match(
@@ -107,7 +119,6 @@ def _calculate_goal_difference_multiplier(goal_difference):
         return 1.75 + ((goal_difference - 3)/8)
 
 def _calculate_home_score(ftr):
-
     if ftr == 'H':
         return 1
     elif ftr == 'D':

@@ -19,7 +19,7 @@ def load_data(path):
     if all_dataframes:
         df = pd.concat(all_dataframes, ignore_index = True)
         print('=' * 60)
-        print(f"Success! Combined DataFrame shape: {df.shape}")
+        print("CSV Files Loaded Successfully!")
         print(f"Number of files loaded: {len(files)}")
         print(f"Number of rows: {len(df.index)}")
         print(f"Number of columns: {len(df.columns)}")
